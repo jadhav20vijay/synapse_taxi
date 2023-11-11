@@ -1,0 +1,20 @@
+{
+	"name": "7_quality_check",
+	"properties": {
+		"folder": {
+			"name": "nyc_taxi/discovery"
+		},
+		"content": {
+			"query": "SELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        \n        BULK 'trip_data_green_parquet/year=2020/month=01/',\n        DATA_SOURCE = 'nyc_taxi_data_raw',\n        FORMAT = 'PARQUET'\n    ) \n    WITH(\n        VendorID\tINT,lpep_pickup_datetime\tDATETIME2(7),lpep_dropoff_datetime\tDATETIME2(7),store_and_fwd_flag\tCHAR(1),\n        RatecodeID\tINT,PULocationID\tINT,DOLocationID\tINT,passenger_count\tINT,trip_distance\tFLOAT,fare_amount\tFLOAT,\n        extra\tFLOAT,mta_tax FLOAT \t,tip_amount\tFLOAT,tolls_amount\tFLOAT,ehail_fee\tINT,improvement_surcharge\tFLOAT,total_amount\tFLOAT,\n        payment_type\tINT,trip_type\tINT,congestion_surcharge FLOAT\n\n    )AS [result]\n\n    -- amount in minus\n\n    SELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        \n        BULK 'trip_data_green_parquet/year=2020/month=01/',\n        DATA_SOURCE = 'nyc_taxi_data_raw',\n        FORMAT = 'PARQUET'\n    )AS [result]\n    where total_amount < 0\n\n-- PAYMENT TYPES\n\n    SELECT\n    payment_type,\n    count(1) as records\nFROM\n    OPENROWSET(\n        \n        BULK 'trip_data_green_parquet/year=2020/month=01/',\n        DATA_SOURCE = 'nyc_taxi_data_raw',\n        FORMAT = 'PARQUET'\n    )AS [result]\n    GROUP BY PAYMENT_TYPE;\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_discovery",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

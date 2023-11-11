@@ -1,0 +1,20 @@
+{
+	"name": "5_external_table_delta",
+	"properties": {
+		"folder": {
+			"name": "nyc_taxi/ldw"
+		},
+		"content": {
+			"query": "    -- CREATE EXTERNAL TABLE\nIF OBJECT_ID ('bronze.trip_data_green_delta') IS NOT NULL\n    DROP EXTERNAL TABLE bronze.trip_data_green_delta;\n\n    CREATE EXTERNAL TABLE bronze.trip_data_green_delta(\n        VendorID\tINT,lpep_pickup_datetime\tDATETIME2(7),lpep_dropoff_datetime\tDATETIME2(7),store_and_fwd_flag\tCHAR(1),\n        RatecodeID\tINT,PULocationID\tINT,DOLocationID\tINT,passenger_count\tINT,trip_distance\tFLOAT,fare_amount\tFLOAT,\n        extra\tFLOAT,mta_tax FLOAT \t,tip_amount\tFLOAT,tolls_amount\tFLOAT,ehail_fee\tINT,improvement_surcharge\tFLOAT,total_amount\tFLOAT,\n        payment_type\tINT,trip_type\tINT,congestion_surcharge FLOAT\n    )\n    WITH(\n        LOCATION = 'raw/trip_data_green_delta',\n        DATA_SOURCE = nyc_taxi_src,\n        FILE_FORMAT = delta_file_format\n    )\n\n\nSELECT * FROM bronze.taxi_zone;",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_ldw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

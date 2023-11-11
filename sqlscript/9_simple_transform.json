@@ -1,0 +1,20 @@
+{
+	"name": "9_simple_transform",
+	"properties": {
+		"folder": {
+			"name": "nyc_taxi/discovery"
+		},
+		"content": {
+			"query": "SELECT TOP 100\n\n    DATEDIFF(MINUTE, lpep_pickup_datetime,lpep_dropoff_datetime)/60 AS from_hour,\n    (DATEDIFF(MINUTE, lpep_pickup_datetime,lpep_dropoff_datetime)/60) + 1 AS to_hour,\n    count(1)\nFROM\n    OPENROWSET(\n        \n        BULK 'trip_data_green_parquet/year=2020/month=01/',\n        DATA_SOURCE = 'nyc_taxi_data_raw',\n        FORMAT = 'PARQUET'\n    -- ) WITH(\n    --     VendorID\tINT,lpep_pickup_datetime\tDATETIME2(7),lpep_dropoff_datetime\tDATETIME2(7),store_and_fwd_flag\tCHAR(1),\n    --     RatecodeID\tINT,PULocationID\tINT,DOLocationID\tINT,passenger_count\tINT,trip_distance\tFLOAT,fare_amount\tFLOAT,\n    --     extra\tFLOAT,mta_tax FLOAT \t,tip_amount\tFLOAT,tolls_amount\tFLOAT,ehail_fee\tINT,improvement_surcharge\tFLOAT,total_amount\tFLOAT,\n    --     payment_type\tINT,trip_type\tINT,congestion_surcharge FLOAT\n\n    )AS [result]\n\n    GROUP BY  DATEDIFF(MINUTE, lpep_pickup_datetime,lpep_dropoff_datetime)/60, (DATEDIFF(MINUTE, lpep_pickup_datetime,lpep_dropoff_datetime)/60) + 1;\n\n\n    -- IDENTIFY CASH AND CARD TRANSACTIONS PERCENTAGE BY BOROUGH\nwith v_trips as \n(\n    SELECT *\n\nFROM\n    OPENROWSET(\n        \n        BULK 'trip_data_green_parquet/year=2020/month=01/',\n        DATA_SOURCE = 'nyc_taxi_data_raw',\n        FORMAT = 'PARQUET'\n    -- ) WITH(\n    --     VendorID\tINT,lpep_pickup_datetime\tDATETIME2(7),lpep_dropoff_datetime\tDATETIME2(7),store_and_fwd_flag\tCHAR(1),\n    --     RatecodeID\tINT,PULocationID\tINT,DOLocationID\tINT,passenger_count\tINT,trip_distance\tFLOAT,fare_amount\tFLOAT,\n    --     extra\tFLOAT,mta_tax FLOAT \t,tip_amount\tFLOAT,tolls_amount\tFLOAT,ehail_fee\tINT,improvement_surcharge\tFLOAT,total_amount\tFLOAT,\n    --     payment_type\tINT,trip_type\tINT,congestion_surcharge FLOAT\n\n    )AS [trips]),\n    \n    v_zones as\n(SELECT * FROM \n\n    OPENROWSET(\n        BULK 'taxi_zone.csv',\n        DATA_SOURCE = 'nyc_taxi_data_raw',\n        FORMAT = 'CSV',\n        FIRST_ROW = 2\n    ) \n    with(\n        LocationID SMALLINT,\n        Borough VARCHAR(15),\n        Zone VARCHAR(50),\n        service_zone VARCHAR(15)\n    )AS [zones]),\n    v_payment_type as \n    (\n\nSELECT CAST(JSON_VALUE(jsonDoc, '$.payment_type')AS SMALLINT) payment_type,\n        CAST(JSON_VALUE(jsonDoc, '$.payment_type_desc') AS VARCHAR(15)) payment_type_desc\nFROM\n    OPENROWSET(\n        BULK 'payment_type.json',\n        DATA_SOURCE = 'nyc_taxi_data_raw',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '1.0',\n        FIELDTERMINATOR = '0x0b',\n        FIELDQUOTE = '0x0b',\n        ROWTERMINATOR = '0x0a'\n    ) \n    with(\n        jsonDoc NVARCHAR(MAX)\n\n    )AS payment_type)\n\n    SELECT v_zones.Borough,\n    count(1) as total_trips,\n    SUM(CASE WHEN v_payment_type.payment_type_desc='Cash' THEN 1 ELSE 0 END) AS cash_trips,\n    SUM(CASE WHEN v_payment_type.payment_type_desc='Credit card' THEN 1 ELSE 0 END) AS card_trips,\nCAST((SUM(CASE WHEN v_payment_type.payment_type_desc='Cash' THEN 1 ELSE 0 END)/CAST(count(1) AS DECIMAL))* 100 AS DECIMAL(5, 2)) AS cash_trips_percentage,\nCAST((SUM(CASE WHEN v_payment_type.payment_type_desc='Credit card' THEN 1 ELSE 0 END)/CAST(count(1) AS DECIMAL))* 100 AS DECIMAL(5, 2)) AS card_trips_percentage\nFROM v_trips\nJOIN v_payment_type\nON v_trips.payment_type = v_payment_type.payment_type\nJOIN v_zones ON v_zones.LocationID = v_trips.PULocationID \nWHERE v_trips.payment_type in (1,2)\nGROUP BY v_zones.Borough",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_discovery",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

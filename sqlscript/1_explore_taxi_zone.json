@@ -1,0 +1,20 @@
+{
+	"name": "1_explore_taxi_zone",
+	"properties": {
+		"folder": {
+			"name": "nyc_taxi/discovery"
+		},
+		"content": {
+			"query": "-- This is auto-generated code\n\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        BULK 'abfss://taxifiles@synapsetaxistorage.dfs.core.windows.net/raw/taxi_zone.csv',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW = TRUE\n    ) \n    with(\n        LocationID SMALLINT,\n        Borough VARCHAR(15),\n        Zone VARCHAR(50),\n        service_zone VARCHAR(15)\n    )AS [result]\n\nEXEC sp_describe_first_result_set N'SELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        BULK ''abfss://taxifiles@synapsetaxistorage.dfs.core.windows.net/raw/taxi_zone.csv'',\n        FORMAT = ''CSV'',\n        PARSER_VERSION = ''2.0'',\n        HEADER_ROW = TRUE\n    ) AS [result]'\n    -- check collate type for the DB\nselect name, collation_name from sys.databases;\n    -- new db\n    CREATE DATABASE nyc_taxi_discovery\n    GO \n    -- change collate to improve performance/cost\n    ALTER DATABASE nyc_taxi_discovery COLLATE Latin1_General_100_CI_AI_SC_UTF8;\n\n-- headerless file\n\n    SELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        BULK 'raw/taxi_zone_without_header.csv',\n        DATA_SOURCE = 'nyc_taxi_data',\n        FORMAT = 'CSV',\n        FIRSTROW = 2,\n        PARSER_VERSION = '2.0'\n    ) \n    with(\n        -- LocationID SMALLINT,\n        Borough VARCHAR(15) 2,\n        Zone VARCHAR(50) 3\n        -- service_zone VARCHAR(15)\n    )AS [result]\n\n-- Create external data source\nCREATE EXTERNAL DATA SOURCE nyc_taxi_data_raw\nWITH (\n    LOCATION = 'abfss://taxifiles@synapsetaxistorage.dfs.core.windows.net/raw',\n\n)",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_discovery",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
