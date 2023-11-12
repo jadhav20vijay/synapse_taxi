@@ -1,0 +1,20 @@
+{
+	"name": "11_silver_rate_code",
+	"properties": {
+		"folder": {
+			"name": "nyc_taxi/ldw"
+		},
+		"content": {
+			"query": "use nyc_taxi_ldw;\n\nIF OBJECT_ID('silver.rate_code') IS NOT NULL\nDROP EXTERNAL TABLE silver.rate_code\nGO\n\nCREATE EXTERNAL TABLE silver.rate_code\nWITH\n    (\n        LOCATION = 'silver/rate_code',\n        DATA_SOURCE = nyc_taxi_src,\n        FILE_FORMAT = parquet_file_format\n    )\nAS\n\n\nSELECT rate_code_id,  rate_code\n-- CAST(JSON_VALUE(jsonDoc, '$.payment_type')AS SMALLINT) payment_type,\n        -- CAST(JSON_VALUE(jsonDoc, '$.payment_type_desc[0].value') AS VARCHAR(15)) payment_type_desc\nFROM\n    OPENROWSET(\n        BULK 'raw/rate_code.json',\n        DATA_SOURCE = 'nyc_taxi_src',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '1.0',\n        FIELDTERMINATOR = '0x0b',\n        FIELDQUOTE = '0x0b',\n        ROWTERMINATOR = '0x0b'\n    ) \n    with(\n        jsonDoc NVARCHAR(MAX)\n\n    )AS rate_code\n    CROSS APPLY OPENJSON(jsonDoc)\n    WITH(\n     rate_code_id SMALLINT,\n     rate_code VARCHAR(20)\n    )\n\n\nSELECT * FROM silver.rate_code;",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_ldw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

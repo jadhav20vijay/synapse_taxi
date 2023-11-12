@@ -1,0 +1,20 @@
+{
+	"name": "silver_vw_trip_data_green",
+	"properties": {
+		"folder": {
+			"name": "nyc_taxi/ldw"
+		},
+		"content": {
+			"query": "use nyc_taxi_ldw;\n\nDROP VIEW IF EXISTS silver.vw_trip_data_green\nGO\n\nCREATE VIEW silver.vw_trip_data_green\n\nAS \n\nSELECT\n    result.filepath(1) as year,\n    result.filepath(2) as month,\n    result.*\nFROM\n    OPENROWSET(\n        \n        BULK 'silver/trip_data_green/year=*/month=*/*.parquet',\n        DATA_SOURCE = 'nyc_taxi_src',\n        FORMAT = 'PARQUET'\n    ) \n    WITH(\n        VendorID INT, lpep_pickup_datetime DATETIME2(7), lpep_dropoff_datetime DATETIME2(7),\n        store_and_fwd_flag CHAR(1),RatecodeID INT,\n    PULocationID INT,DOLocationID INT,passenger_count INT,trip_distance FLOAT,fare_amount FLOAT, \n    extra FLOAT,mta_tax FLOAT,tip_amount FLOAT ,tolls_amount FLOAT ,ehail_fee INT,\n    improvement_surcharge FLOAT,total_amount FLOAT,payment_type INT,trip_type INT,congestion_surcharge FLOAT\n    \n    ) AS [result];\n\n    select count(1) from silver.vw_trip_data_green\n    WHERE year ='2020' and month = '01';",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_ldw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

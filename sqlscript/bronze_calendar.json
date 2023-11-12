@@ -1,0 +1,20 @@
+{
+	"name": "bronze_calendar",
+	"properties": {
+		"folder": {
+			"name": "nyc_taxi/ldw"
+		},
+		"content": {
+			"query": "use nyc_taxi_ldw;\n ALTER DATABASE nyc_taxi_ldw COLLATE Latin1_General_100_CI_AI_SC_UTF8;\n\nIF OBJECT_ID('bronze.calendar') IS NOT NULL\nDROP EXTERNAL TABLE bronze.calendar\nGO\n\nCREATE EXTERNAL TABLE bronze.calendar\n(\n    date_key INT,\n    date DATE,\n    year SMALLINT,\n    month SMALLINT,day SMALLINT,\n    day_name VARCHAR(10),day_of_year SMALLINT,\n    week_of_month TINYINT,week_of_year TINYINT,month_name VARCHAR(15),\n    year_month INT,year_week INT\n)\n\nWITH\n    (\n        LOCATION = 'raw/calendar.csv',\n        DATA_SOURCE = nyc_taxi_src,\n        FILE_FORMAT = csv_file_format_pv1,\n        REJECT_VALUE = 10,\n        REJECTED_ROW_LOCATION = 'rejections/calendar'\n    );\n\n    SELECT * FROM bronze.calendar;\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_ldw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
