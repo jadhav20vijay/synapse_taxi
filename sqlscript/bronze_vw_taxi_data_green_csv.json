@@ -1,0 +1,20 @@
+{
+	"name": "bronze_vw_taxi_data_green_csv",
+	"properties": {
+		"folder": {
+			"name": "nyc_taxi/ldw"
+		},
+		"content": {
+			"query": "use nyc_taxi_ldw;\n\nDROP VIEW IF EXISTS bronze.vw_trip_data_green_csv\nGO\nCREATE VIEW bronze.vw_trip_data_green_csv\n\nAS \n(\nSELECT\n    result.filepath(1) as year,\n    result.filepath(2) as month,\n    result.*\nFROM\n    OPENROWSET(\n        \n        BULK 'raw/trip_data_green_csv/year=*/month=*/*.csv',\n        DATA_SOURCE = 'nyc_taxi_src',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW = TRUE\n    ) AS [result]\n    )\n\n    select count(1) from bronze.vw_trip_data_green_csv\n    WHERE year ='2020' and month = '01';",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_ldw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

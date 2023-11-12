@@ -1,0 +1,20 @@
+{
+	"name": "silver_trip_data_green",
+	"properties": {
+		"folder": {
+			"name": "nyc_taxi/ldw"
+		},
+		"content": {
+			"query": "use nyc_taxi_ldw;\n\nIF OBJECT_ID('silver.trip_data_green') IS NOT NULL\nDROP EXTERNAL TABLE silver.trip_data_green\nGO\n\nCREATE EXTERNAL TABLE silver.trip_data_green\nWITH\n    (\n        LOCATION = 'silver/trip_data_green',\n        DATA_SOURCE = nyc_taxi_src,\n        FILE_FORMAT = parquet_file_format\n    )\nAS\nSELECT * FROM bronze.trip_data_green_csv;\n\nSELECT * FROM silver.trip_data_green;\n\n/*\nIF OBJECT_ID('silver.trip_data_green_2020_01') IS NOT NULL\nDROP EXTERNAL TABLE silver.trip_data_green_2020_01\nGO\n\nCREATE EXTERNAL TABLE silver.trip_data_green_2020_01\nWITH\n    (\n        LOCATION = 'silver/trip_data_green/year=2020/month=01',\n        DATA_SOURCE = nyc_taxi_src,\n        FILE_FORMAT = parquet_file_format\n    )\nAS\nSELECT * FROM bronze.vw_trip_data_green_csv\nWHERE year ='2020' and month = '01';\n\n\nSELECT count(1) FROM silver.trip_data_green_2020_01\nWHERE year ='2020' and month = '01';\n*/\n\nEXEC silver.usp_trip_data_green '2020', '01'\nEXEC silver.usp_trip_data_green '2020', '02'\nEXEC silver.usp_trip_data_green '2020', '03'\nEXEC silver.usp_trip_data_green '2020', '04'\nEXEC silver.usp_trip_data_green '2020', '05'\nEXEC silver.usp_trip_data_green '2020', '06'\nEXEC silver.usp_trip_data_green '2020', '07'\nEXEC silver.usp_trip_data_green '2020', '08'\nEXEC silver.usp_trip_data_green '2020', '09'\nEXEC silver.usp_trip_data_green '2020', '10'\nEXEC silver.usp_trip_data_green '2020', '11'\nEXEC silver.usp_trip_data_green '2020', '12'\nEXEC silver.usp_trip_data_green '2021', '01'\nEXEC silver.usp_trip_data_green '2021', '02'\nEXEC silver.usp_trip_data_green '2021', '03'\nEXEC silver.usp_trip_data_green '2021', '04'\nEXEC silver.usp_trip_data_green '2021', '05'\nEXEC silver.usp_trip_data_green '2021', '06'\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_ldw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

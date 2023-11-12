@@ -1,0 +1,20 @@
+{
+	"name": "bronze_trip_type",
+	"properties": {
+		"folder": {
+			"name": "nyc_taxi/ldw"
+		},
+		"content": {
+			"query": "use nyc_taxi_ldw;\n\n\nIF OBJECT_ID('bronze.trip_type') IS NOT NULL\nDROP EXTERNAL TABLE bronze.trip_type\nGO\n\nCREATE EXTERNAL TABLE bronze.trip_type\n(\ntrip_type TINYINT, trip_type_desc VARCHAR(50)\n)\n\nWITH\n    (\n        LOCATION = 'raw/trip_type.tsv',\n        DATA_SOURCE = nyc_taxi_src,\n        FILE_FORMAT = tsv_file_format\n           );\n\n    SELECT * FROM bronze.trip_type;\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_ldw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

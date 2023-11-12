@@ -1,0 +1,20 @@
+{
+	"name": "bronze_vendor",
+	"properties": {
+		"folder": {
+			"name": "nyc_taxi/ldw"
+		},
+		"content": {
+			"query": "use nyc_taxi_ldw;\n\n\nIF OBJECT_ID('bronze.vendor') IS NOT NULL\nDROP EXTERNAL TABLE bronze.vendor\nGO\n\nCREATE EXTERNAL TABLE bronze.vendor\n(\nvendor_id TINYINT, vendor_name VARCHAR(50)\n)\n\nWITH\n    (\n        LOCATION = 'raw/vendor.csv',\n        DATA_SOURCE = nyc_taxi_src,\n        FILE_FORMAT = csv_file_format_pv1,\n        REJECT_VALUE = 10,\n        REJECTED_ROW_LOCATION = 'rejections/vendor'\n    );\n\n    SELECT * FROM bronze.vendor;\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_ldw",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
