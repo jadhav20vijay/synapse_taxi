@@ -1,0 +1,38 @@
+{
+	"name": "ds_silver_taxi_zone",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "adls2Containers",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "silver/taxi_zone",
+				"fileSystem": "taxifiles"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "LocationID",
+				"type": "INT_16"
+			},
+			{
+				"name": "Borough",
+				"type": "UTF8"
+			},
+			{
+				"name": "Zone",
+				"type": "UTF8"
+			},
+			{
+				"name": "service_zone",
+				"type": "UTF8"
+			}
+		]
+	},
+	"type": "Microsoft.Synapse/workspaces/datasets"
+}
