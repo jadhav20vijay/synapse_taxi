@@ -5,7 +5,7 @@
 			"name": "nyc_taxi/ldw"
 		},
 		"content": {
-			"query": "use nyc_taxi_ldw;\n\nIF OBJECT_ID('silver.taxi_zone') IS NOT NULL\nDROP EXTERNAL TABLE silver.taxi_zone\nGO\n\nCREATE EXTERNAL TABLE silver.taxi_zone\nWITH\n    (\n        LOCATION = 'silver/taxi_zone',\n        DATA_SOURCE = nyc_taxi_src,\n        FILE_FORMAT = parquet_file_format\n    )\nAS\nSELECT * FROM bronze.taxi_zone;\n\nSELECT * FROM silver.taxi_zone;",
+			"query": "use nyc_taxi_ldw;\nGO\n\nIF OBJECT_ID('silver.taxi_zone') IS NOT NULL\nDROP EXTERNAL TABLE silver.taxi_zone\nGO\n\nCREATE EXTERNAL TABLE silver.taxi_zone\nWITH\n    (\n        LOCATION = 'silver/taxi_zone',\n        DATA_SOURCE = nyc_taxi_src,\n        FILE_FORMAT = parquet_file_format\n    )\nAS\nSELECT * FROM bronze.taxi_zone;\n\n",
 			"metadata": {
 				"language": "sql"
 			},
