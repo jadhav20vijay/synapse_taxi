@@ -1,0 +1,20 @@
+{
+	"name": "4_trip_data_csv",
+	"properties": {
+		"folder": {
+			"name": "nyc_taxi/discovery"
+		},
+		"content": {
+			"query": "-- This is auto-generated code\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        \n        BULK 'trip_data_green_csv/year=2020/month=01/*.csv',\n        DATA_SOURCE = 'nyc_taxi_data_raw',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW = TRUE\n    ) AS [result]\n\n-- SELECT FROM ALL SUB-FOLDERS\n\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        \n        BULK 'trip_data_green_csv/year=2020/**',\n        DATA_SOURCE = 'nyc_taxi_data_raw',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW = TRUE\n    ) AS [result]\n\n    -- GET DATA FROM 2 SUBFOLDERS\n\n\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        \n        BULK ('trip_data_green_csv/year=2020/month=01/*.csv', \n        'trip_data_green_csv/year=2020/month=02/*.csv'),\n        DATA_SOURCE = 'nyc_taxi_data_raw',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW = TRUE\n    ) AS [result]\n\n    -- SPECIFY THE FILENAME IN THE DATA\n\nSELECT\n    TOP 100\nresult.filename() AS file_name,\nresult.*\n    FROM\n    OPENROWSET(\n        \n        BULK ('trip_data_green_csv/year=*/month=*/*.csv', \n        'trip_data_green_csv/year=2020/month=02/*.csv'),\n        DATA_SOURCE = 'nyc_taxi_data_raw',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW = TRUE\n    ) AS [result]\n\n-- COUNT THE RECORDS IN EACH FILE\n\n-- SPECIFY SELECTED FILES IN EACH SUBFOLDERS/ SPECIFY PARTICULAR PARTITIONS INSTEAD ALL DATA\n\nSELECT\ncount(1) as record_count,\nresult.filename() AS file_name,\nresult.filepath(1) AS year,\nresult.filepath(2) AS month\n\n    FROM\n    OPENROWSET(\n        \n        BULK 'trip_data_green_csv/year=*/month=*/*.csv',\n        DATA_SOURCE = 'nyc_taxi_data_raw',\n        FORMAT = 'CSV',\n        PARSER_VERSION = '2.0',\n        HEADER_ROW = TRUE\n    ) AS [result] \n    WHERE result.filepath(1) = '2020' and\n    result.filepath(2) = '01'\n    GROUP BY result.filename(), result.filepath(1), result.filepath(2)\n\n\n\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_taxi_discovery",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
