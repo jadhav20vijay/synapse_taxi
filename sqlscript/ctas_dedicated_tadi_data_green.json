@@ -1,0 +1,17 @@
+{
+	"name": "ctas_dedicated_tadi_data_green",
+	"properties": {
+		"content": {
+			"query": "-- CREATE SCHEMA staging\n-- GO\n\n\nIF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name = 'parquet_file_format') \n\tCREATE EXTERNAL FILE FORMAT parquet_file_format\n\tWITH ( FORMAT_TYPE = PARQUET)\nGO\n\nIF NOT EXISTS (SELECT * FROM sys.external_data_sources WHERE name = 'nyc_taxi_src') \n\tCREATE EXTERNAL DATA SOURCE nyc_taxi_src\n\tWITH (\n\t\tLOCATION = 'abfss://taxifiles@synapsetaxistorage.dfs.core.windows.net' \n\t)\nGO\n\nCREATE EXTERNAL TABLE staging.ext_trip_data_green (\n\t[year] nvarchar(4000),\n\t[month] nvarchar(4000),\n\t[Borough] nvarchar(4000),\n\t[trip_date] date,\n\t[trip_day] nvarchar(4000),\n\t[trip_day_weekend_ind] nvarchar(4000),\n\t[card_trip_amount] int,\n\t[cash_trip_amount] int\n\t)\n\tWITH (\n\tLOCATION = 'gold/trip_data_green',\n\tDATA_SOURCE = nyc_taxi_src,\n\tFILE_FORMAT = parquet_file_format\n\t)\nGO\n\n\nSELECT TOP 100 * FROM staging.ext_trip_data_green\nGO\n\n\nCREATE SCHEMA dwh\nGO\n\n\n\nCREATE TABLE dwh.trip_data_green\nWITH\n(\nCLUSTERED COLUMNSTORE INDEX,\nDISTRIBUTION = ROUND_ROBIN\n)\nAS SELECT * FROM staging.ext_trip_data_green;\n\nSELECT TOP 100 * FROM dwh.trip_data_green;",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "nyc_dwh",
+				"poolName": "nyc_dwh"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
